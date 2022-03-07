@@ -51,9 +51,9 @@ public class ProdutoController {
 
 	@PostMapping
 	public ResponseEntity<Produto> postProduto(@Valid @RequestBody Produto produto) {
-		if (categoriaRepository.existsById(produto.getCategoria().getId()))
+		return categoriaRepository.findById(produto.getCategoria().getId()).map(resposta -> {
 			return ResponseEntity.status(HttpStatus.CREATED).body(produtoRepository.save(produto));
-		return ResponseEntity.notFound().build();
+		}).orElse(ResponseEntity.badRequest().build());
 	}
 
 	@PutMapping
@@ -71,12 +71,12 @@ public class ProdutoController {
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 		}).orElse(ResponseEntity.notFound().build());
 	}
-	
+
 	@GetMapping("/maiorpreco/{preco}")
-	public ResponseEntity<List<Produto>> getPrecoMaiorQue(@PathVariable BigDecimal preco){ 
+	public ResponseEntity<List<Produto>> getPrecoMaiorQue(@PathVariable BigDecimal preco) {
 		return ResponseEntity.ok(produtoRepository.findByPrecoGreaterThanOrderByPreco(preco));
 	}
-	
+
 	@GetMapping("/menorpreco/{preco}")
 	public ResponseEntity<List<Produto>> getPrecoMenorQue(@PathVariable BigDecimal preco) {
 		return ResponseEntity.ok(produtoRepository.findByPrecoLessThanOrderByPrecoDesc(preco));
